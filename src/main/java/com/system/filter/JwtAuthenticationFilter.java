@@ -1,7 +1,10 @@
 package com.system.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.system.common.JsonUntil;
 import com.system.common.JwtService;
 import com.system.common.UserContext;
+import com.system.controller.response.ResponseData;
 import com.system.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +16,14 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Objects;
 
 @Component
 public class JwtAuthenticationFilter implements Filter {
 
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private JwtService jwtService;
 
@@ -41,8 +47,7 @@ public class JwtAuthenticationFilter implements Filter {
         String header = req.getHeader("Authorization");
 
         if (header == null || !header.startsWith("Bearer ")) {
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+            genNoAuthResponse((HttpServletResponse) response);
             return;
         }
 
@@ -52,11 +57,25 @@ public class JwtAuthenticationFilter implements Filter {
             Claims claims = jwtService.parseToken(token);
             UserContext.setUser(userRepository.findByUsername(claims.getSubject()));
         } catch (Exception ex) {
-            HttpServletResponse httpResponse = (HttpServletResponse) response;
-            httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+            genNoAuthResponse((HttpServletResponse) response);
             return;
         }
         chain.doFilter(request, response);
+    }
+
+    private void genNoAuthResponse(HttpServletResponse response) {
+        HttpServletResponse httpResponse = response;
+        httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter writer;
+        try {
+            writer = httpResponse.getWriter();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        writer.write(JsonUntil.parseObject(ResponseData.noAuth()));
+        writer.flush();
+        writer.close();
     }
 }
 
