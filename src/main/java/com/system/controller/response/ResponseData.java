@@ -40,7 +40,7 @@ public class ResponseData {
         ResponseData response = new ResponseData();
         response.setStatus(0);
         response.setCode(UNAUTHORIZED.getCode());
-        response.setCode(UNAUTHORIZED.getMessage());
+        response.setMessage(UNAUTHORIZED.getMessage());
         return response;
     }
 }

@@ -64,12 +64,11 @@ public class JwtAuthenticationFilter implements Filter {
     }
 
     private void genNoAuthResponse(HttpServletResponse response) {
-        HttpServletResponse httpResponse = response;
-        httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json;charset=UTF-8");
         PrintWriter writer;
         try {
-            writer = httpResponse.getWriter();
+            writer = response.getWriter();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
