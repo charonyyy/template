@@ -1,9 +1,8 @@
 package com.system.filter;
 
+import com.system.common.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -16,6 +15,9 @@ import java.util.Objects;
 
 @Component
 public class JwtAuthenticationFilter implements Filter {
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -41,13 +43,7 @@ public class JwtAuthenticationFilter implements Filter {
         String token = header.replace("Bearer ", "");
 
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.secretKeyFor(SignatureAlgorithm.HS256))
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-            claims.get("username");
-            request.setAttribute("claims", claims);
+            jwtUtil.parseToken(token);
         } catch (Exception ex) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());

@@ -1,15 +1,16 @@
 package com.system.common;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
 
     @Value("${jwt.secret}")
@@ -18,17 +19,25 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
+    public String generateToken(String subject) {
+        SignatureAlgorithm algorithm = SignatureAlgorithm.HS256;
 
-    public String generateToken(String username) {
-        // 生成 JWT Token
+        long nowMillis = System.currentTimeMillis();
+
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .setSubject(subject)
+                .setIssuedAt(new Date(nowMillis))
+                .setExpiration(new Date(nowMillis + expiration))
+                .signWith(algorithm, secret)
                 .compact();
+    }
+
+    public Claims parseToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
 
