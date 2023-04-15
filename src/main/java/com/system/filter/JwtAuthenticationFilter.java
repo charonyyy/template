@@ -1,6 +1,8 @@
 package com.system.filter;
 
-import com.system.common.JwtUtil;
+import com.system.common.JwtService;
+import com.system.common.UserContext;
+import com.system.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +19,15 @@ import java.util.Objects;
 public class JwtAuthenticationFilter implements Filter {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        UserContext.removeUser();
 
         HttpServletRequest req = (HttpServletRequest) request;
         String requestUrl = req.getRequestURI();
@@ -43,13 +49,13 @@ public class JwtAuthenticationFilter implements Filter {
         String token = header.replace("Bearer ", "");
 
         try {
-            jwtUtil.parseToken(token);
+            Claims claims = jwtService.parseToken(token);
+            UserContext.setUser(userRepository.findByUsername(claims.getSubject()));
         } catch (Exception ex) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             return;
         }
-
         chain.doFilter(request, response);
     }
 }
