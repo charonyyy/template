@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter implements Filter {
         String requestUrl = req.getRequestURI();
 
         if (Objects.equals(requestUrl, "/api/login")
-                && StringUtils.endsWithIgnoreCase(req.getMethod(), "post")) {
+                && StringUtils.startsWithIgnoreCase(req.getMethod(), "post")) {
             chain.doFilter(request, response);
             return;
         }
