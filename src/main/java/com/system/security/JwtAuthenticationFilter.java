@@ -1,8 +1,7 @@
-package com.system.filter;
+package com.system.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.system.common.JsonUntil;
-import com.system.common.JwtService;
 import com.system.common.UserContext;
 import com.system.controller.response.ResponseData;
 import com.system.repository.UserRepository;

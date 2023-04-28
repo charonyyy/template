@@ -9,10 +9,6 @@ public class UserContext {
         threadLocal.set(user);
     }
 
-    public static User getUser() {
-        return threadLocal.get();
-    }
-
     public static String getUsername() {
         return threadLocal.get().getUsername();
     }

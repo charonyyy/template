@@ -1,6 +1,6 @@
 package com.system.service;
 
-import com.system.common.JwtService;
+import com.system.security.JwtService;
 import com.system.controller.request.LoginRequest;
 import com.system.controller.response.LoginResponse;
 import com.system.entity.User;
